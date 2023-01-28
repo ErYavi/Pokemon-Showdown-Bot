@@ -13,8 +13,10 @@ import pyocr.builders
 import math
 from ObjetosBien import *
 import copy
+import moves
 
 ################################################################
+#   SELECCIONAR AREA DE PANTALLA
 xa, ya, xb, yb = 0, 0, 0, 0
 switch = False
 option = ""
@@ -69,7 +71,63 @@ if ya > yb:
     yb = copy.copy(aux)
 
 print("ordenadas:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
+#################################################################################
+#   FUNCIONES
+def encontrarDato(s, texto):
+    i = texto.rfind(s)
+    j = 4
+    dato = ""
+    while ("0" <= texto[i+j] <= "9") or texto[i+j] == ".":
+        dato += texto[i+j]
+        j += 1
+    return dato
 
+def leerPokemon(x, y):
+    global pokemon
+    #pone cursor en posicion
+    win32api.SetCursorPos((x, y))
+    time.sleep(0.5)
+    #screenshot
+    screen = py.screenshot(region=(xa, ya, xb-xa, yb-ya))
+    # guardar datos
+    texto = pytesseract.image_to_string(screen, lang='eng')
+    #print(texto)
+    vida = encontrarDato("HP")
+    print(vida)
+    ataque = encontrarDato("Atk", texto)
+    print(ataque)
+    defensa = encontrarDato("Def", texto)
+    print(defensa)
+    especial = encontrarDato("Spc", texto)
+    print(especial)
+    velocidad = encontrarDato("Spe", texto)
+    print(velocidad)
+    #crea objeto pokemon
+    pokemonActual = Pokemon(vida, ataque, defensa, especial, velocidad)
+
+    return pokemonActual
+
+def leerAtaque(texto):
+    i = texto.rfind("Attack")+8
+    nombre = []
+    encontrado = False
+    while encontrado != True:
+        #lee palabra
+        while texto[i] != " ":
+            nombre.append(texto[i])
+            i += 1
+        
+        if nombre in moves["name"]:
+            ataque = Ataque(nombre) 
+            encontrado = True
+        else: 
+            nombre.append(" ")
+            i += 1
+        
+    return ataque
+
+
+#################################################################################
 #coordenada para tapar chat
 xChat, yChat = 700 + xa, 16 + ya
 win32api.SetCursorPos((xChat, yChat))
@@ -88,6 +146,16 @@ xPokemon = []
 for j in range (0, 6):
     xPokemon.append(45 + xa + 107*j)
 
+pokemon = []
+
+#for i in range (0, 6):
+#    pokemon.append(leerPokemon(xPokemon[i], yPokemon))
+#    for j in range (0, 4):
+#        pokemon[i].ataques = leerAtaque(texto)
+
+
+
+######################  PRUEBAS
 #pruebas de las coordenadas
 for i in range (0 , 4):
     print(xAtaques[i])
@@ -107,86 +175,22 @@ for j in range (0, 6):
     win32api.SetCursorPos((xPokemon[j], yPokemon))
     time.sleep(0.5)
 
+
 screen = py.screenshot(region=(xa, ya, xb-xa, yb-ya))
 screen.show()
 
-# guardar datos
-texto = pytesseract.image_to_string(screen, lang='eng')
-print(texto)
 
-def encontrarDato(s):
-    i = texto.rfind(s)
-    j = 4
-    dato = ""
-    while ("0" <= texto[i+j] <= "9") or texto[i+j] == ".":
-        dato += texto[i+j]
-        j += 1
 
-    return dato
 
-print("---PRUEBAS DE ATRIBUTOS CAPTURADOS---")
-vida = encontrarDato("HP")
-print(vida)
-ataque = encontrarDato("Atk")
-print(ataque)
-defensa = encontrarDato("Def")
-print(defensa)
-especial = encontrarDato("Spc")
-print(especial)
-velocidad = encontrarDato("Spe")
-print(velocidad)
-
-pokemon = Pokemon(vida, ataque, defensa, especial, velocidad)
-print(pokemon)
-
-#########################################################################
 pytesseract.tesseract_cmd = r'C:\Users\danis\AppData\Local\Programs\Tesseract-OCR\tesseract'
 
-def encontrarNombre():
-    i = 0
-    while texto[i] != " ":
-        nombre = texto[0:i]
-        i += 1
-    return nombre
 
-def encontrarDato(s):
-    i = texto.rfind(s)
-    j=4
-    dato = ""
-    while ("0" <= texto[i+j] <= "9") or texto[i+j] == "." :
-        dato +=  texto[i+j]
-        j+=1
-    return dato
+
+
 
 ##template matching
 #def match_template(image, template):
 #    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED) 
-
-print("---ATRIBUTOS CAPTURADOS---")
-nombre = encontrarNombre()
-print(nombre)
-vida = encontrarDato("-HP")
-print(vida)
-ataque = encontrarDato("-Atk")
-print(ataque)
-defensa = encontrarDato("-Def")
-print(defensa)
-especial = encontrarDato("-Spc")
-print(especial)
-velocidad = encontrarDato("-Spe")
-print(velocidad)
-pokemonActual = Pokemon(nombre, vida, ataque, defensa, especial, velocidad)
-
-#print("--ATAQUES CAPTURADOS---")
-#ataques = np.array(imAntes[405:445][15:622])
-#ataques = Image.fromarray(ataques)
-#ataques.show()
-textoAtaques = pytesseract.image_to_string(ataques, lang = 'eng')
-print(textoAtaques)
-
-# Dividir la frase en una lista de palabras
-ataques = textoAtaques.split()
-
 
 q = 0
 for q in q < 4:
