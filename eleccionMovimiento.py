@@ -319,8 +319,8 @@ def get_efectividad_data(tipo, tipoRival, efectividad):
 
 
 def get_move_data(name, moves):
-    for move in moves:
-        if move["name"] == name + "\n":
+    for move in range(0, 160):
+        if moves["name"] == name + "\n":
             return move
     return None
 
@@ -358,5 +358,5 @@ def best_move(move1, move2, move3, move4, ataque, ataqueEspecial, tipoRival):
         return 5
 
 
-print(best_move(get_move_data("Explosion", moves), get_move_data("Surf", moves),
-      get_move_data("Peck", moves), get_move_data("Lick", moves), 90, 120, ["Fire", ""]))
+#movimiento = (best_move(get_move_data("Explosion", moves), get_move_data("Surf", moves),
+#      get_move_data("Peck", moves), get_move_data("Lick", moves), 90, 120, ["Fire", ""]))

@@ -15,7 +15,7 @@ from ObjetosBien import *
 import copy
 import moves
 import tipos
-import eleccionMovimiento
+import eleccionMovimiento as el
 
 ################################################################
 #   SELECCIONAR AREA DE PANTALLA
@@ -169,8 +169,8 @@ def LeerPokemonEnemigo():
     # screen2.show()
     texto2 = pytesseract.image_to_string(screen2)
     print(texto2)
-
-    enemigo = Pokemon(encontrarDato("HP", texto2), None, None, None, None, None)
+    types = leerTipo(np.array(screen2))
+    enemigo = Pokemon(types, encontrarDato("HP", texto2), None, None, None, None, None)
     return enemigo
 
 
@@ -257,6 +257,7 @@ def leerTodo():
     leerBanquillo(pokemon)
     # lee enemigo
     print("# POKEMON ENEMIGO #")
+    global enemigo
     enemigo = LeerPokemonEnemigo()
     enemigo.mostrar()
 
@@ -270,16 +271,35 @@ def espera():
     else:
         return True
 
+def detectarDebilitado():
+    screen = py.screenshot(region=(xa, ya, xb, yb))
+    # screen2.show()
+    texto = pytesseract.image_to_string(screen)
+    #print(texto)
+    i=1
+    while "Fainted" in texto:
+        cambiarPokemon(i)
+        i+=1
+        
 
 # FUNCIONAMIENTO DE TURNO
 
 
 while True:
    leerTodo()
-   break
-   #if eleccionMovimiento.best_move()
+   espera()
+   detectarDebilitado()
 
-   
+   mov = el.best_move(el.get_move_data(pokemon[0].ataques[0] , moves), el.get_move_data(pokemon[0].ataques[1], moves),
+      el.get_move_data(pokemon[0].ataques[2], moves), el.get_move_data(pokemon[0].ataques[3], moves), pokemon[0].atk , pokemon[0].spc , [enemigo.tipos[0] , enemigo.tipos[1]])
+
+   if mov == 5:
+       #cambiarPokemon
+        for i in range (0, 5):
+            cambiarPokemon(i)
+            i+=1
+   else:
+       seleccionarAtaque(mov)
    
    
    
