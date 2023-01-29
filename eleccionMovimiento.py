@@ -320,7 +320,7 @@ def get_efectividad_data(tipo, tipoRival, efectividad):
 
 def get_move_data(name, moves):
     for move in moves:
-        if move["name"] == name:
+        if move["name"] == name + "\n":
             return move
     return None
 

@@ -122,24 +122,17 @@ def leerTipo(img):
     return datos
 
 
-def leerAtaque(texto):
-    i = texto.rfind("Attack")+8
-    nombre = []
-    encontrado = False
-    while encontrado != True:
-        # lee palabra
-        while texto[i] != " ":
-            nombre.append(texto[i])
-            i += 1
+def leerAtaques():
+    imagen = py.screenshot(region=(0+xa, 417+ya, 637, 21))
+    imagen = py.screenshot(region=(0+0, 417+128, 637, 21))
+    ataques = []
+    for i in range(0, 4):
+        img = imagen.crop((155*i + 10,  0,  155*i + 150, 20))
+        ataque = pytesseract.image_to_string(img, lang="eng")
+        ataques.append(ataque)
+    #print(ataques)
 
-        if nombre in moves["name"]:
-            ataque = Ataque(nombre)
-            encontrado = True
-        else:
-            nombre.append(" ")
-            i += 1
-    return ataque
-
+    return ataques
 
 def leerPokemon(x, y):
     global pokemon
@@ -164,7 +157,7 @@ def leerPokemon(x, y):
     # print(velocidad)
     types = leerTipo(np.array(screen))
     # crea objeto pokemon
-    pokemonActual = Pokemon(types, vida, ataque, defensa, especial, velocidad)
+    pokemonActual = Pokemon(types, vida, ataque, defensa, especial, velocidad, None)
 
     return pokemonActual
 
@@ -177,7 +170,7 @@ def LeerPokemonEnemigo():
     texto2 = pytesseract.image_to_string(screen2)
     print(texto2)
 
-    enemigo = Pokemon(encontrarDato("HP", texto2), None, None, None, None)
+    enemigo = Pokemon(encontrarDato("HP", texto2), None, None, None, None, None)
     return enemigo
 
 
@@ -219,7 +212,8 @@ def leerActual(x, y):
     # print(velocidad)
     # crea objeto pokemon
     types = leerTipo(np.array(screen))
-    pokemonActual = Pokemon(types, vida, ataque, defensa, especial, velocidad)
+
+    pokemonActual = Pokemon(types, vida, ataque, defensa, especial, velocidad, leerAtaques())
     return pokemonActual
 
 
@@ -253,6 +247,8 @@ pokemon = np.empty(0, dtype=Pokemon)
 
 
 def leerTodo():
+    global pokemon
+
     pokemon = np.append(pokemon, (leerActual(x, y)))
     print("# POKEMON ACTUAL: #")
     pokemon[0].mostrar()
@@ -275,21 +271,26 @@ def espera():
         return True
 
 
-print(leerAtaque)
 # FUNCIONAMIENTO DE TURNO
 
 
-# while True:
-#    leerTodo()
-#    if eleccionMovimiento.best_move()
+while True:
+   leerTodo()
+   break
+   #if eleccionMovimiento.best_move()
 
-
-# for i in range (0, 6):
+   
+   
+   
+   
+   
+   
+   
+#   for i in range (0, 6):
 #
-#    for j in range (0, 4):
-#        pokemon[i].ataques = leerAtaque(texto)
+#   for j in range (0, 4):
+#       pokemon[i].ataques = leerAtaque(texto)
 #
-
 
 # PRUEBAS
 # pruebas de las coordenadas
