@@ -210,7 +210,7 @@ for i in range (0 , 4):
 xPokemon = [] 
 for j in range (0, 6):
     xPokemon.append(45 + xa + 107*j)
-########################################## INICIALIZAR
+############################################ INICIALIZAR
 #inicializa lista de pokemons vacia
 pokemon = np.empty(0, dtype=Pokemon)
 #lee pokemon actual
@@ -238,7 +238,6 @@ while True:
     else: break
 
 
-print("BUCLE")
 
 
 
