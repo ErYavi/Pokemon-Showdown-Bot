@@ -211,16 +211,18 @@ def get_move_data(name, moves):
     return None
 
 # Función de fitness: calcula el poder de ataque de cada movimiento
-def fitness(move, tipoRival):
-    score = damage_function(get_efectividad_data(move["type"],tipoRival, efectividad), 80, 150, move["damage"]) * move["accuracy"] 
+def fitness(move,ataque,ataqueEspecial,tipoRival):
+    if move["category"] == "Fisico":
+        score = damage_function(get_efectividad_data(move["type"],tipoRival, efectividad), 80, ataque, move["damage"]) * move["accuracy"]
+    else: score = damage_function(get_efectividad_data(move["type"],tipoRival, efectividad), 80, ataqueEspecial, move["damage"]) * move["accuracy"]
     return score
 
 # Encuentra el mejor movimiento
-def best_move(move1,move2,move3,move4,tipoRival):
-    f1=fitness(move1,tipoRival)
-    f2=fitness(move2,tipoRival)
-    f3=fitness(move3,tipoRival)
-    f4=fitness(move4,tipoRival)
+def best_move(move1,move2,move3,move4,ataque,ataqueEspecial,tipoRival):
+    f1=fitness(move1,ataque,ataqueEspecial,tipoRival)
+    f2=fitness(move2,ataque,ataqueEspecial,tipoRival)
+    f3=fitness(move3,ataque,ataqueEspecial,tipoRival)
+    f4=fitness(move4,ataque,ataqueEspecial,tipoRival)
     mejor=max(f1,f2,f3,f4)
     if mejor>0.5:
         if mejor==f1: 
@@ -233,7 +235,7 @@ def best_move(move1,move2,move3,move4,tipoRival):
             return move4
     else: return "Cambio"
 
-print (best_move(get_move_data("Dig",moves),get_move_data("Thunder",moves),get_move_data("Peck",moves),get_move_data("Lick",moves),"Normal"))
+print (best_move(get_move_data("Explosion",moves),get_move_data("Surf",moves),get_move_data("Peck",moves),get_move_data("Lick",moves),90,120,"Fire"))
 
 
 
