@@ -12,11 +12,11 @@ class ataque(object):
 # Lista de movimientos con sus características
 
 # Función de fitness: calcula el poder de ataque de cada movimiento
-#def fitness(move):
-#    score = move["damage"] * move["accuracy"]
-#    if move["category"] == "Físico":
-#        score += 10
-#    return score
+def fitness(move):
+    score = move["damage"] * move["accuracy"]
+    if move["category"] == "Físico":
+        score += 10
+    return score
 #
 ## Función para crear una población inicial
 #def create_population(size):

@@ -41,6 +41,7 @@ pantalla = cv2.cvtColor(np.array(py.screenshot()), cv2.COLOR_BGR2RGB)
 cv2.namedWindow("screen", cv2.WINDOW_NORMAL)
 cv2.setWindowProperty("screen", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 cv2.setMouseCallback("screen", dibujar)
+
 while option != "yes":
     img = copy.copy(pantalla)
     if switch == True:
@@ -59,8 +60,9 @@ while option != "yes":
     cv2.waitKey(1)
 cv2.destroyAllWindows()
 time.sleep(1)
-print("sin ordenar:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
+#print("sin ordenar:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
 
+#Ordena las coordenadas para que xa e ya sean la esquina superior izquierda del juego
 if xa > xb:
     aux = copy.copy(xa)
     xa = copy.copy(xb)
@@ -70,11 +72,19 @@ if ya > yb:
     ya = copy.copy(yb)
     yb = copy.copy(aux)
 
-print("ordenadas:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
+#print("ordenadas:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
 #################################################################################
 #   FUNCIONES
 def encontrarDato(s, texto):
-    i = texto.rfind(s)
+    if s != 'HP':
+        i = texto.rfind('Atk')
+        if s == 'Def':
+            i += 10
+        elif s == 'Spc':
+            i += 20
+        elif s == 'Spe':
+            i += 30
+    else: i = texto.rfind(s)
     j = 4
     dato = ""
     while ("0" <= texto[i+j] <= "9") or texto[i+j] == ".":
@@ -88,20 +98,21 @@ def leerPokemon(x, y):
     win32api.SetCursorPos((x, y))
     time.sleep(0.5)
     #screenshot
-    screen = py.screenshot(region=(xa, ya, xb-xa, yb-ya))
+    screen = py.screenshot(region=(x-42, 338 + ya, 250, 138))
+    screen.show()
     # guardar datos
     texto = pytesseract.image_to_string(screen, lang='eng')
     #print(texto)
-    vida = encontrarDato("HP")
-    print(vida)
+    vida = encontrarDato("HP", texto)
+    #print(vida)
     ataque = encontrarDato("Atk", texto)
-    print(ataque)
+    #print(ataque)
     defensa = encontrarDato("Def", texto)
-    print(defensa)
+    #print(defensa)
     especial = encontrarDato("Spc", texto)
-    print(especial)
+    #print(especial)
     velocidad = encontrarDato("Spe", texto)
-    print(velocidad)
+    #print(velocidad)
     #crea objeto pokemon
     pokemonActual = Pokemon(vida, ataque, defensa, especial, velocidad)
 
@@ -123,12 +134,14 @@ def leerAtaque(texto):
         else: 
             nombre.append(" ")
             i += 1
-        
     return ataque
+
+def averiguar_tipo():
+    print("a")
 
 
 #################################################################################
-#coordenada para tapar chat
+#Coordenada para tapar chat
 xChat, yChat = 700 + xa, 16 + ya
 win32api.SetCursorPos((xChat, yChat))
 py.click()
@@ -146,53 +159,48 @@ xPokemon = []
 for j in range (0, 6):
     xPokemon.append(45 + xa + 107*j)
 
-pokemon = []
+
+pokemon = np.empty(0, dtype=Pokemon)
+
+pokemon = np.append(pokemon, (leerPokemon(xPokemon[0], yPokemon)))
+
+pokemon[0].mostrar()
 
 #for i in range (0, 6):
-#    pokemon.append(leerPokemon(xPokemon[i], yPokemon))
+#    
 #    for j in range (0, 4):
 #        pokemon[i].ataques = leerAtaque(texto)
+#
 
 
-
-######################  PRUEBAS
-#pruebas de las coordenadas
-for i in range (0 , 4):
-    print(xAtaques[i])
-
-for j in range (0, 6):
-    print(xPokemon[j])
-
-win32api.SetCursorPos((x, y))
-time.sleep(0.5)
-
-#va poniendo el cursor en las coordenadas
-for i in range (0, 4):
-    win32api.SetCursorPos((xAtaques[i], yAtaques))
-    time.sleep(0.5)
-
-for j in range (0, 6):
-    win32api.SetCursorPos((xPokemon[j], yPokemon))
-    time.sleep(0.5)
-
-
-screen = py.screenshot(region=(xa, ya, xb-xa, yb-ya))
-screen.show()
-
-
-
-
-pytesseract.tesseract_cmd = r'C:\Users\danis\AppData\Local\Programs\Tesseract-OCR\tesseract'
-
-
-
-
+#######################  PRUEBAS
+##pruebas de las coordenadas
+#for i in range (0 , 4):
+#    print(xAtaques[i])
+#
+#for j in range (0, 6):
+#    print(xPokemon[j])
+#
+#win32api.SetCursorPos((x, y))
+#time.sleep(0.5)
+#
+##va poniendo el cursor en las coordenadas
+#for i in range (0, 4):
+#    win32api.SetCursorPos((xAtaques[i], yAtaques))
+#    time.sleep(0.5)
+#
+#for j in range (0, 6):
+#    win32api.SetCursorPos((xPokemon[j], yPokemon))
+#    time.sleep(0.5)
+#
+#
+#screen = py.screenshot(region=(xa, ya, xb-xa, yb-ya))
+#screen.show()
+#
+#pytesseract.tesseract_cmd = r'C:\Users\danis\AppData\Local\Programs\Tesseract-OCR\tesseract'
 
 ##template matching
 #def match_template(image, template):
 #    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED) 
 
-q = 0
-for q in q < 4:
-    ataque = Ataque(ataques[q])
-    pokemonActual.ataques[q] = ataque
+

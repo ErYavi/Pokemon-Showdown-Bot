@@ -11,21 +11,18 @@ class Pokemon (object):
       self.defensa = defensa
       self.spc = spc
       self.spe = spe
-      self.estado = None
-      self.confuso = None
       self.ataques = []
 
-      
+   
    #4 objetos clase ataque
-   def mostrar():
-      print("Atriburtos: ")
-      print("-HP: ")
-      print("-ATK: ")
-      print("-DEF:")
-      print("-SPC: ")
-      print("-SPE: ")
-      print("-Estado:")
-      print("-Confuso: ")
+   def mostrar(self):
+      print("STATS: ")
+      print("-HP: " + str(self.hp))
+      print("-ATK: " + str(self.atk))
+      print("-DEF: " + str(self.defensa))
+      print("-SPC: " + str(self.spc))
+      print("-SPE: " + str(self.spe))
+
       #for i in ataques:
       #   print("Ataques: ")
 
