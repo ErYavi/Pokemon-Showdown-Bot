@@ -198,10 +198,14 @@ def damage_function(bonificacion, nivel, ataque, poder):
 
 #Función de busqueda por tipos de valor de efectividad
 def get_efectividad_data(tipo,tipoRival,efectividad):
+    valorEfectividad=1
     for item in efectividad:
-        if item["tipo"] == tipo and item["tipoRival"] == tipoRival:
-            return item["valor"]
-    return 1
+        if item["tipo"] == tipo and item["tipoRival"] == tipoRival[0]:
+            valorEfectividad *= item["valor"]
+    for item in efectividad:
+        if item["tipo"] == tipo and item["tipoRival"] == tipoRival[1] and tipoRival[1]!=None:
+            valorEfectividad *= item["valor"]
+    return valorEfectividad
 
 # Funcion de busqueda por nombre en moves
 def get_move_data(name, moves):
@@ -235,7 +239,7 @@ def best_move(move1,move2,move3,move4,ataque,ataqueEspecial,tipoRival):
             return move4
     else: return "Cambio"
 
-print (best_move(get_move_data("Explosion",moves),get_move_data("Surf",moves),get_move_data("Peck",moves),get_move_data("Lick",moves),90,120,"Fire"))
+print (best_move(get_move_data("Explosion",moves),get_move_data("Surf",moves),get_move_data("Peck",moves),get_move_data("Lick",moves),90,120,["Fire",""]))
 
 
 
