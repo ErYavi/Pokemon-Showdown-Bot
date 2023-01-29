@@ -1,33 +1,51 @@
-Dragon = (123, 99, 231)
-Venom = (195, 82, 161)
-Flying = (168, 160, 237)
-Ghost = (103, 91, 177)
-Grass = (151, 210, 94)
-Rock = (179, 169, 98)
-Water = (109, 146, 250)
-Normal = (169, 166, 147)
-Ground = (205, 184, 103)
-Fight = (146, 86, 60)
-Psychc = (228, 116, 164)
-Ice = (141, 203, 228)
-Electric = (234, 205, 75)
-Fire = (215, 89, 64)
-Bug = (175, 192, 60)
+Dragon = "templates/dragon.jpg"
+Poison = "templates/poison.jpg"
+Flying = "templates/flying.jpg"
+Ghost = "templates/ghost.jpg"
+Grass = "templates/grass.jpg"
+Rock = "templates/rock.jpg"
+Water = "templates/water.jpg"
+Normal = "templates/normal.jpg"
+Ground = "templates/ground.jpg"
+Fight = "templates/fight.jpg"
+Psychc = "templates/psychc.jpg"
+Ice = "templates/ice.jpg"
+Electr = "templates/electr.jpg"
+Fire = "templates/fire.jpg"
+Bug = "templates/bug.jpg"
 
-tipos = []
+templates = []
+nombres = []
 
-tipos.append(Dragon)
-tipos.append(Venom)
-tipos.append(Flying )
-tipos.append(Ghost)
-tipos.append(Grass)
-tipos.append(Rock)
-tipos.append(Water)
-tipos.append(Normal)
-tipos.append(Ground)
-tipos.append(Fight)
-tipos.append(Psychc)
-tipos.append(Ice)
-tipos.append(Electric)
-tipos.append(Fire)
-tipos.append(Bug)
+templates.append(Dragon)
+templates.append(Poison)
+templates.append(Flying)
+templates.append(Ghost)
+templates.append(Grass)
+templates.append(Rock)
+templates.append(Water)
+templates.append(Normal)
+templates.append(Ground)
+templates.append(Fight)
+templates.append(Psychc)
+templates.append(Ice)
+templates.append(Electr)
+templates.append(Fire)
+templates.append(Bug)
+
+
+nombres.append("Dragon")
+nombres.append("Poison")
+nombres.append("Flying")
+nombres.append("Ghost")
+nombres.append("Grass")
+nombres.append("Rock")
+nombres.append("Water")
+nombres.append("Normal")
+nombres.append("Ground")
+nombres.append("Fight")
+nombres.append("Psychc")
+nombres.append("Ice")
+nombres.append("Electr")
+nombres.append("Fire")
+nombres.append("Bug")

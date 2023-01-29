@@ -14,12 +14,15 @@ import math
 from ObjetosBien import *
 import copy
 import moves
+import tipos
+import eleccionMovimiento
 
 ################################################################
 #   SELECCIONAR AREA DE PANTALLA
 xa, ya, xb, yb = 0, 0, 0, 0
 switch = False
 option = ""
+
 
 def dibujar(event, x, y, flags, param):
     global xa, ya, xb, yb, switch
@@ -30,11 +33,13 @@ def dibujar(event, x, y, flags, param):
         xb, yb = x, y
         switch = True
 
+
 def aceptar(title='', text='', button='OK'):
     py.alert(title=title, text=text, button=button)
     win32handles = py.getWindowsWithTitle(title)
     if win32handles:
         wg.SetForegroundWindow(win32handles[0])
+
 
 pantalla = cv2.cvtColor(np.array(py.screenshot()), cv2.COLOR_BGR2RGB)
 
@@ -62,7 +67,7 @@ cv2.destroyAllWindows()
 time.sleep(1)
 #print("sin ordenar:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
 
-#Ordena las coordenadas para que xa e ya sean la esquina superior izquierda del juego
+# Ordena las coordenadas para que xa e ya sean la esquina superior izquierda del juego
 if xa > xb:
     aux = copy.copy(xa)
     xa = copy.copy(xb)
@@ -75,6 +80,8 @@ if ya > yb:
 #print("ordenadas:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
 #################################################################################
 #   FUNCIONES
+
+
 def encontrarDato(s, texto):
     if s != 'HP':
         i = texto.rfind('Atk')
@@ -84,7 +91,8 @@ def encontrarDato(s, texto):
             i += 20
         elif s == 'Spe':
             i += 30
-    else: i = texto.rfind(s)
+    else:
+        i = texto.rfind(s)
     j = 4
     dato = ""
     while ("0" <= texto[i+j] <= "9") or texto[i+j] == "." or texto[i+1] == None:
@@ -92,108 +100,136 @@ def encontrarDato(s, texto):
         j += 1
     return dato
 
-def leerPokemon(x, y):
-    global pokemon
-    #pone cursor en posicion
-    win32api.SetCursorPos((x, y))
-    time.sleep(0.2)
-    #screenshot
-    screen = py.screenshot(region=(x-45, 338 + ya, 250, 138))
-    screen.show()
-    # guardar datos
-    texto = pytesseract.image_to_string(screen, lang='eng')
-    print(texto)
-    vida = encontrarDato("HP", texto)
-    #print(vida)
-    ataque = encontrarDato("Atk", texto)
-    #print(ataque)
-    defensa = encontrarDato("Def", texto)
-    #print(defensa)
-    especial = encontrarDato("Spc", texto)
-    #print(especial)
-    velocidad = encontrarDato("Spe", texto)
-    #print(velocidad)
-    #crea objeto pokemon
-    pokemonActual = Pokemon(vida, ataque, defensa, especial, velocidad)
 
-    return pokemonActual
+def leerTipo(img):
+    type = 0
+    i = 0
+    umbral = 0.6
+    datos = []
+    while type < 2 and i < len(tipos.nombres):
+        # Va leyendo todas las templates y ajusta su tamaño
+        template = cv2.imread(tipos.templates[i])
+        template = cv2.resize(template, (0, 0), fx=31/255, fy=11/95)
+        # Buscar plantilla en imagen
+        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+        # Encuentra la mejor coincidencia
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        # Comprobamos que la coincidencia sea mayor a 0,6 (que es el umbral de funcionamiento)
+        if max_val > umbral:
+            type += 1
+            datos.append(tipos.nombres[i])
+        i += 1
+    return datos
+
 
 def leerAtaque(texto):
     i = texto.rfind("Attack")+8
     nombre = []
     encontrado = False
     while encontrado != True:
-        #lee palabra
+        # lee palabra
         while texto[i] != " ":
             nombre.append(texto[i])
             i += 1
-        
+
         if nombre in moves["name"]:
-            ataque = Ataque(nombre) 
+            ataque = Ataque(nombre)
             encontrado = True
-        else: 
+        else:
             nombre.append(" ")
             i += 1
     return ataque
 
-def averiguar_tipo():
-    print("a")
+
+def leerPokemon(x, y):
+    global pokemon
+    # pone cursor en posicion
+    win32api.SetCursorPos((x, y))
+    time.sleep(0.2)
+    # screenshot
+    screen = py.screenshot(region=(x-45, 338 + ya, 250, 138))
+    # screen.show()
+    # guardar datos
+    texto = pytesseract.image_to_string(screen, lang='eng')
+    print(texto)
+    vida = encontrarDato("HP", texto)
+    # print(vida)
+    ataque = encontrarDato("Atk", texto)
+    # print(ataque)
+    defensa = encontrarDato("Def", texto)
+    # print(defensa)
+    especial = encontrarDato("Spc", texto)
+    # print(especial)
+    velocidad = encontrarDato("Spe", texto)
+    # print(velocidad)
+    types = leerTipo(np.array(screen))
+    # crea objeto pokemon
+    pokemonActual = Pokemon(types, vida, ataque, defensa, especial, velocidad)
+
+    return pokemonActual
+
 
 def LeerPokemonEnemigo():
     win32api.SetCursorPos((410 + xa, 123 + ya))
     time.sleep(0.2)
     screen2 = py.screenshot(region=(389+xa, 11+ya, 300, 75))
-    screen2.show()
+    # screen2.show()
     texto2 = pytesseract.image_to_string(screen2)
     print(texto2)
-    
+
     enemigo = Pokemon(encontrarDato("HP", texto2), None, None, None, None)
     return enemigo
+
 
 def cambiarPokemon(cambio):
     win32api.SetCursorPos((xPokemon[cambio], yPokemon))
     py.click()
 
+
 def leerBanquillo(pokemon):
     for i in range(1, 6):
         aux = leerPokemon(xPokemon[i], yPokemon)
         pokemon = np.append(pokemon, aux)
-        print("Pokemon posicion ", i , ": ")
+        print("Pokemon posicion ", i, ": ")
         pokemon[i].mostrar()
 
     return pokemon
 
+
 def leerActual(x, y):
     global pokemon
-    #pone cursor en posicion
+    # pone cursor en posicion
     win32api.SetCursorPos((x, y))
     time.sleep(0.2)
-    #screenshot
+    # screenshot
     screen = py.screenshot(region=(xa + 125, 117 + ya, 300, 80))
-    screen.show()
+    # screen.show()
     # guardar datos
     texto = pytesseract.image_to_string(screen, lang='eng')
     print(texto)
     vida = encontrarDato("HP", texto)
-    #print(vida)
+    # print(vida)
     ataque = encontrarDato("Atk", texto)
-    #print(ataque)
+    # print(ataque)
     defensa = encontrarDato("Def", texto)
-    #print(defensa)
+    # print(defensa)
     especial = encontrarDato("Spc", texto)
-    #print(especial)
+    # print(especial)
     velocidad = encontrarDato("Spe", texto)
-    #print(velocidad)
-    #crea objeto pokemon
-    pokemonActual = Pokemon(vida, ataque, defensa, especial, velocidad)
+    # print(velocidad)
+    # crea objeto pokemon
+    types = leerTipo(np.array(screen))
+    pokemonActual = Pokemon(types, vida, ataque, defensa, especial, velocidad)
     return pokemonActual
+
 
 def seleccionarAtaque(posicion):
     win32api.SetCursorPos((xAtaques[posicion], yAtaques))
     py.click()
 
+
 #################################################################################
-#Coordenada para tapar chat
+# Coordenada para tapar chat
 xChat, yChat = 700 + xa, 16 + ya
 win32api.SetCursorPos((xChat, yChat))
 py.click()
@@ -201,81 +237,86 @@ py.click()
 # Coordenadas para leer datos pokemon
 x, y = 200+xa, 260+ya
 yAtaques, yPokemon = 450+ya, 510+ya
-#coordenadas x de los ataques
+# coordenadas x de los ataques
 xAtaques = []
-for i in range (0 , 4):
-    xAtaques.append(75 + xa + 160*i) 
+for i in range(0, 4):
+    xAtaques.append(75 + xa + 160*i)
 
-#corrdenadas x de los pokemon
-xPokemon = [] 
-for j in range (0, 6):
+# corrdenadas x de los pokemon
+xPokemon = []
+for j in range(0, 6):
     xPokemon.append(45 + xa + 107*j)
-############################################ INICIALIZAR
-#inicializa lista de pokemons vacia
+# INICIALIZAR
+# inicializa lista de pokemons vacia
 pokemon = np.empty(0, dtype=Pokemon)
-#lee pokemon actual
-pokemon = np.append(pokemon, (leerActual(x, y)))
-print("# POKEMON ACTUAL: #")
-pokemon[0].mostrar()
-#lee banquillo
-print("# POKEMONS EN EL BANQUILLO #")
-leerBanquillo(pokemon)
-#lee enemigo
-print("# POKEMON ENEMIGO #")
-enemigo = LeerPokemonEnemigo()
-enemigo.mostrar()
+# lee pokemon actual
 
-seleccionarAtaque(2)
-############################################ FUNCIONAMIENTO DE TURNO
 
-while True:
-    screen = py.screenshot(region=(xa + 0, 400 + ya, 640, 140))
-    screen.show()
-    texto0 = pytesseract.image_to_string(screen)
-    print(texto0)
+def leerTodo():
+    pokemon = np.append(pokemon, (leerActual(x, y)))
+    print("# POKEMON ACTUAL: #")
+    pokemon[0].mostrar()
+    # lee banquillo
+    print("# POKEMONS EN EL BANQUILLO #")
+    leerBanquillo(pokemon)
+    # lee enemigo
+    print("# POKEMON ENEMIGO #")
+    enemigo = LeerPokemonEnemigo()
+    enemigo.mostrar()
+
+
+def espera():
+    wait = py.screenshot(region=(xa + 0, 400 + ya, 640, 140))
+    texto0 = pytesseract.image_to_string(wait)
     if "Waiting for opponent..." in texto0:
         time.sleep(1)
-    else: break
+        return False
+    else:
+        return True
 
 
+print(leerAtaque)
+# FUNCIONAMIENTO DE TURNO
 
 
+# while True:
+#    leerTodo()
+#    if eleccionMovimiento.best_move()
 
 
-
-#for i in range (0, 6):
-#    
+# for i in range (0, 6):
+#
 #    for j in range (0, 4):
 #        pokemon[i].ataques = leerAtaque(texto)
 #
 
 
-#######################  PRUEBAS
-##pruebas de las coordenadas
-#for i in range (0 , 4):
+# PRUEBAS
+# pruebas de las coordenadas
+# for i in range (0 , 4):
 #    print(xAtaques[i])
 #
-#for j in range (0, 6):
+# for j in range (0, 6):
 #    print(xPokemon[j])
 #
 #win32api.SetCursorPos((x, y))
-#time.sleep(0.5)
+# time.sleep(0.5)
 #
-##va poniendo el cursor en las coordenadas
-#for i in range (0, 4):
+# va poniendo el cursor en las coordenadas
+# for i in range (0, 4):
 #    win32api.SetCursorPos((xAtaques[i], yAtaques))
 #    time.sleep(0.5)
 #
-#for j in range (0, 6):
+# for j in range (0, 6):
 #    win32api.SetCursorPos((xPokemon[j], yPokemon))
 #    time.sleep(0.5)
 #
 #
 #screen = py.screenshot(region=(xa, ya, xb-xa, yb-ya))
-#screen.show()
+# screen.show()
 #
 #pytesseract.tesseract_cmd = r'C:\Users\danis\AppData\Local\Programs\Tesseract-OCR\tesseract'
 
-##template matching
-#def match_template(image, template):
-#    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED) 
+# template matching
+# def match_template(image, template):
+#    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
