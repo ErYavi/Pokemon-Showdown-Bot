@@ -10,8 +10,6 @@ from Objetos import *
 import copy
 import tipos
 import eleccionMovimiento as el
-
-
 import random
 
 # Lista de movimientos con sus caracterÃ­sticas
@@ -226,6 +224,7 @@ moves = [{"name": "Pound", "type": "Normal", "damage": 40, "accuracy": 1, "categ
              "accuracy": 0.85, "category": "Fisico"}
          ]
 
+#tablas de efectividad
 efectividad = [{"tipo": "Water", "tipoRival": "Water", "valor": 0.5},
                {"tipo": "Water", "tipoRival": "Dragon", "valor": 0.5},
                {"tipo": "Water", "tipoRival": "Fire", "valor": 2},
@@ -309,16 +308,12 @@ efectividad = [{"tipo": "Water", "tipoRival": "Water", "valor": 0.5},
                {"tipo": "Flying", "tipoRival": "Rock", "valor": 0.5}
                ]
 
-# FunciÃ³n para formula de daÃ±o
-
-
+# Funcion para formula de dato
 def damage_function(bonificacion, nivel, ataque, poder):
     i = random.randint(96, 419)
     return 0.01 * bonificacion * (((0.2 * nivel + 1) * ataque * poder) / (25 * i) + 2)
 
-# FunciÃ³n de busqueda por tipos de valor de efectividad
-
-
+# Funcion de busqueda por tipos de valor de efectividad
 def get_efectividad_data(tipo, tipoRival, efectividad):
     valorEfectividad = 1
     for item in efectividad:
@@ -330,8 +325,6 @@ def get_efectividad_data(tipo, tipoRival, efectividad):
     return valorEfectividad
 
 # Funcion de busqueda por nombre en moves
-
-
 def get_move_data(name, moves):
     for move in moves:
         if move["name"] == name:
@@ -339,21 +332,18 @@ def get_move_data(name, moves):
     return None
 
 # Funcion de fitness: calcula el poder de ataque de cada movimiento
-
-
 def fitness(move, ataque, ataqueEspecial, tipoRival):
     if tipoRival == ["", ""]:
         tipoRival = ["Normal", ""]
-    #if move["category"] == "Fisico":
-    # score = damage_function(get_efectividad_data(
-    #        move["type"], tipoRival, efectividad), 80, ataque, move["damage"]) * move["accuracy"]
-    #else:
-    score = damage_function(get_efectividad_data(
+    if move["category"] == "Fisico":
+     score = damage_function(get_efectividad_data(
+            move["type"], tipoRival, efectividad), 80, ataque, move["damage"]) * move["accuracy"]
+    else:
+        score = damage_function(get_efectividad_data(
             move["type"], tipoRival, efectividad), 80, ataqueEspecial, move["damage"]) * move["accuracy"]
     return score
 
 # Encuentra el mejor movimiento
-
 def best_move(move1, move2, move3, move4, ataque, ataqueEspecial, tipoRival):
     f1 = fitness(move1, ataque, ataqueEspecial, tipoRival)
     f2 = fitness(move2, ataque, ataqueEspecial, tipoRival)
@@ -372,13 +362,11 @@ def best_move(move1, move2, move3, move4, ataque, ataqueEspecial, tipoRival):
     else:
         return 5
 
-
 ################################################################
 #   SELECCIONAR AREA DE PANTALLA
 xa, ya, xb, yb = 0, 0, 0, 0
 switch = False
 option = ""
-
 
 def dibujar(event, x, y, flags, param):
     global xa, ya, xb, yb, switch
@@ -389,13 +377,11 @@ def dibujar(event, x, y, flags, param):
         xb, yb = x, y
         switch = True
 
-
 def aceptar(title='', text='', button='OK'):
     py.alert(title=title, text=text, button=button)
     win32handles = py.getWindowsWithTitle(title)
     if win32handles:
         wg.SetForegroundWindow(win32handles[0])
-
 
 pantalla = cv2.cvtColor(np.array(py.screenshot()), cv2.COLOR_BGR2RGB)
 
@@ -435,8 +421,8 @@ if ya > yb:
 
 #print("ordenadas:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
 #################################################################################
-#   FUNCIONES
 
+#   FUNCIONES
 
 def encontrarDato(s, texto):
     if s != 'HP':
@@ -455,7 +441,6 @@ def encontrarDato(s, texto):
         dato += texto[i+j]
         j += 1
     return dato
-
 
 def leerTipo(img):
     type = 0
@@ -479,7 +464,6 @@ def leerTipo(img):
         while len(datos) < 2:
             datos.append("")
     return datos
-
 
 def leerAtaques():
     imagen = py.screenshot(region=(0+xa, 417+ya, 637, 21))
@@ -520,7 +504,6 @@ def leerPokemon(x, y):
 
     return pokemonActual
 
-
 def LeerPokemonEnemigo():
     win32api.SetCursorPos((410 + xa, 123 + ya))
     time.sleep(0.2)
@@ -531,7 +514,6 @@ def LeerPokemonEnemigo():
     types = leerTipo(np.array(screen2))
     enemigo = Pokemon(types, encontrarDato("HP", texto2), None, None, None, None, None)
     return enemigo
-
 
 def cambiarPokemon(cambio):
     win32api.SetCursorPos((xPokemon[cambio], yPokemon))
@@ -549,7 +531,6 @@ def leerBanquillo(pokemon):
         pokemon[i].mostrar()
 
     return pokemon
-
 
 def leerActual(x, y):
     global pokemon
@@ -578,39 +559,13 @@ def leerActual(x, y):
     pokemonActual = Pokemon(types, vida, ataque, defensa, especial, velocidad, leerAtaques())
     return pokemonActual
 
-
 def seleccionarAtaque(posicion):
     win32api.SetCursorPos((xAtaques[posicion], yAtaques))
     py.click()
 
-
-#################################################################################
-# Coordenada para tapar chat
-xChat, yChat = 700 + xa, 16 + ya
-win32api.SetCursorPos((xChat, yChat))
-py.click()
-
-# Coordenadas para leer datos pokemon
-x, y = 200+xa, 260+ya
-yAtaques, yPokemon = 450+ya, 510+ya
-# coordenadas x de los ataques
-xAtaques = []
-for i in range(0, 4):
-    xAtaques.append(75 + xa + 160*i)
-
-# corrdenadas x de los pokemon
-xPokemon = []
-for j in range(0, 6):
-    xPokemon.append(45 + xa + 107*j)
-# INICIALIZAR
-# inicializa lista de pokemons vacia
-pokemon = np.empty(0, dtype=Pokemon)
-# lee pokemon actual
-
-
 def leerTodo():
     global pokemon
-
+    # lee pokemon actual
     pokemon = np.append(pokemon, (leerActual(x, y)))
     print("# POKEMON ACTUAL: #")
     pokemon[0].mostrar()
@@ -622,7 +577,6 @@ def leerTodo():
     global enemigo
     enemigo = LeerPokemonEnemigo()
     enemigo.mostrar()
-
 
 def espera():
     wait = py.screenshot(region=(xa + 0, 400 + ya, 640, 140))
@@ -645,68 +599,49 @@ def detectarDebilitado():
         i+=1
     time.sleep(5)
 
+#################################################################################
+# Coordenada para tapar chat
+xChat, yChat = 700 + xa, 16 + ya
+win32api.SetCursorPos((xChat, yChat))
+py.click()
 
-# FUNCIONAMIENTO DE TURNO
+# Coordenadas para leer datos pokemon
+x, y = 200+xa, 260+ya
+yAtaques, yPokemon = 450+ya, 510+ya
+# coordenadas x de los ataques
+xAtaques = []
+for i in range(0, 4):
+    xAtaques.append(75 + xa + 160*i)
 
+# corrdenadas x de los pokemon
+xPokemon = []
+for j in range(0, 6):
+    xPokemon.append(45 + xa + 107*j)
+
+# INICIALIZAR
+# inicializa lista de pokemons vacia
+pokemon = np.empty(0, dtype=Pokemon)
+
+####################### FUNCIONAMIENTO DE TURNO
 
 while True:
-   detectarDebilitado()
+    detectarDebilitado()
 
-   leerTodo()
-   while espera() == False:
+    leerTodo()
+    while espera() == False:
        espera()
+ 
+    mov = best_move(get_move_data(pokemon[0].ataques[0] , moves), get_move_data(pokemon[0].ataques[1], moves),
+       get_move_data(pokemon[0].ataques[2], moves), get_move_data(pokemon[0].ataques[3], moves), pokemon[0].atk , pokemon[0].spc , [enemigo.tipos[0] , enemigo.tipos[1]])
+    print(mov)
+    if mov == 5:
+        #cambiarPokemon
+         for i in range (0, 5):
+             cambiarPokemon(i)
+             i+=1
+    else:
+        seleccionarAtaque(mov)
    
-   #mov = best_move(get_move_data(pokemon[0].ataques[0] , moves), get_move_data(pokemon[0].ataques[1], moves),
-   #   get_move_data(pokemon[0].ataques[2], moves), get_move_data(pokemon[0].ataques[3], moves), pokemon[0].atk , pokemon[0].spc , [enemigo.tipos[0] , enemigo.tipos[1]])
-   #print(mov)
-   #if mov == 5:
-   #    #cambiarPokemon
-   #     for i in range (0, 5):
-   #         cambiarPokemon(i)
-   #         i+=1
-   #else:
-
-   i = random.randint(0, 3)
-   seleccionarAtaque(i)
-   while espera() == False:
-       espera()
+    while espera() == False:
+        espera()
    
-   
-   
-   
-   
-#   for i in range (0, 6):
-#
-#   for j in range (0, 4):
-#       pokemon[i].ataques = leerAtaque(texto)
-#
-
-# PRUEBAS
-# pruebas de las coordenadas
-# for i in range (0 , 4):
-#    print(xAtaques[i])
-#
-# for j in range (0, 6):
-#    print(xPokemon[j])
-#
-#win32api.SetCursorPos((x, y))
-# time.sleep(0.5)
-#
-# va poniendo el cursor en las coordenadas
-# for i in range (0, 4):
-#    win32api.SetCursorPos((xAtaques[i], yAtaques))
-#    time.sleep(0.5)
-#
-# for j in range (0, 6):
-#    win32api.SetCursorPos((xPokemon[j], yPokemon))
-#    time.sleep(0.5)
-#
-#
-#screen = py.screenshot(region=(xa, ya, xb-xa, yb-ya))
-# screen.show()
-#
-#pytesseract.tesseract_cmd = r'C:\Users\danis\AppData\Local\Programs\Tesseract-OCR\tesseract'
-
-# template matching
-# def match_template(image, template):
-#    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
