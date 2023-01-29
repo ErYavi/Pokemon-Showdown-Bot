@@ -21,6 +21,7 @@ xa, ya, xb, yb = 0, 0, 0, 0
 switch = False
 option = ""
 
+
 def dibujar(event, x, y, flags, param):
     global xa, ya, xb, yb, switch
     if event == cv2.EVENT_LBUTTONDOWN:
@@ -30,11 +31,13 @@ def dibujar(event, x, y, flags, param):
         xb, yb = x, y
         switch = True
 
+
 def aceptar(title='', text='', button='OK'):
     py.alert(title=title, text=text, button=button)
     win32handles = py.getWindowsWithTitle(title)
     if win32handles:
         wg.SetForegroundWindow(win32handles[0])
+
 
 pantalla = cv2.cvtColor(np.array(py.screenshot()), cv2.COLOR_BGR2RGB)
 
@@ -62,7 +65,7 @@ cv2.destroyAllWindows()
 time.sleep(1)
 #print("sin ordenar:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
 
-#Ordena las coordenadas para que xa e ya sean la esquina superior izquierda del juego
+# Ordena las coordenadas para que xa e ya sean la esquina superior izquierda del juego
 if xa > xb:
     aux = copy.copy(xa)
     xa = copy.copy(xb)
@@ -75,6 +78,8 @@ if ya > yb:
 #print("ordenadas:\n("+str(xa)+", "+str(ya)+")("+str(xb)+", "+str(yb)+")")
 #################################################################################
 #   FUNCIONES
+
+
 def encontrarDato(s, texto):
     if s != 'HP':
         i = texto.rfind('Atk')
@@ -84,7 +89,8 @@ def encontrarDato(s, texto):
             i += 20
         elif s == 'Spe':
             i += 30
-    else: i = texto.rfind(s)
+    else:
+        i = texto.rfind(s)
     j = 4
     dato = ""
     while ("0" <= texto[i+j] <= "9") or texto[i+j] == ".":
@@ -92,56 +98,59 @@ def encontrarDato(s, texto):
         j += 1
     return dato
 
+
 def leerPokemon(x, y):
     global pokemon
-    #pone cursor en posicion
+    # pone cursor en posicion
     win32api.SetCursorPos((x, y))
     time.sleep(0.5)
-    #screenshot
+    # screenshot
     screen = py.screenshot(region=(x-42, 338 + ya, 250, 138))
     screen.show()
     # guardar datos
     texto = pytesseract.image_to_string(screen, lang='eng')
-    #print(texto)
+    # print(texto)
     vida = encontrarDato("HP", texto)
-    #print(vida)
+    # print(vida)
     ataque = encontrarDato("Atk", texto)
-    #print(ataque)
+    # print(ataque)
     defensa = encontrarDato("Def", texto)
-    #print(defensa)
+    # print(defensa)
     especial = encontrarDato("Spc", texto)
-    #print(especial)
+    # print(especial)
     velocidad = encontrarDato("Spe", texto)
-    #print(velocidad)
-    #crea objeto pokemon
+    # print(velocidad)
+    # crea objeto pokemon
     pokemonActual = Pokemon(vida, ataque, defensa, especial, velocidad)
 
     return pokemonActual
+
 
 def leerAtaque(texto):
     i = texto.rfind("Attack")+8
     nombre = []
     encontrado = False
     while encontrado != True:
-        #lee palabra
+        # lee palabra
         while texto[i] != " ":
             nombre.append(texto[i])
             i += 1
-        
+
         if nombre in moves["name"]:
-            ataque = Ataque(nombre) 
+            ataque = Ataque(nombre)
             encontrado = True
-        else: 
+        else:
             nombre.append(" ")
             i += 1
     return ataque
 
-def averiguar_tipo():
+
+def leerTipo():
     print("a")
 
 
 #################################################################################
-#Coordenada para tapar chat
+# Coordenada para tapar chat
 xChat, yChat = 700 + xa, 16 + ya
 win32api.SetCursorPos((xChat, yChat))
 py.click()
@@ -149,14 +158,14 @@ py.click()
 # Coordenadas para leer datos pokemon
 x, y = 200+xa, 260+ya
 yAtaques, yPokemon = 450+ya, 510+ya
-#coordenadas x de los ataques
+# coordenadas x de los ataques
 xAtaques = []
-for i in range (0 , 4):
-    xAtaques.append(75 + xa + 160*i) 
+for i in range(0, 4):
+    xAtaques.append(75 + xa + 160*i)
 
-#corrdenadas x de los pokemon
-xPokemon = [] 
-for j in range (0, 6):
+# corrdenadas x de los pokemon
+xPokemon = []
+for j in range(0, 6):
     xPokemon.append(45 + xa + 107*j)
 
 
@@ -166,41 +175,39 @@ pokemon = np.append(pokemon, (leerPokemon(xPokemon[0], yPokemon)))
 
 pokemon[0].mostrar()
 
-#for i in range (0, 6):
-#    
+# for i in range (0, 6):
+#
 #    for j in range (0, 4):
 #        pokemon[i].ataques = leerAtaque(texto)
 #
 
 
-#######################  PRUEBAS
-##pruebas de las coordenadas
-#for i in range (0 , 4):
+# PRUEBAS
+# pruebas de las coordenadas
+# for i in range (0 , 4):
 #    print(xAtaques[i])
 #
-#for j in range (0, 6):
+# for j in range (0, 6):
 #    print(xPokemon[j])
 #
 #win32api.SetCursorPos((x, y))
-#time.sleep(0.5)
+# time.sleep(0.5)
 #
-##va poniendo el cursor en las coordenadas
-#for i in range (0, 4):
+# va poniendo el cursor en las coordenadas
+# for i in range (0, 4):
 #    win32api.SetCursorPos((xAtaques[i], yAtaques))
 #    time.sleep(0.5)
 #
-#for j in range (0, 6):
+# for j in range (0, 6):
 #    win32api.SetCursorPos((xPokemon[j], yPokemon))
 #    time.sleep(0.5)
 #
 #
 #screen = py.screenshot(region=(xa, ya, xb-xa, yb-ya))
-#screen.show()
+# screen.show()
 #
 #pytesseract.tesseract_cmd = r'C:\Users\danis\AppData\Local\Programs\Tesseract-OCR\tesseract'
 
-##template matching
-#def match_template(image, template):
-#    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED) 
-
-
+# template matching
+# def match_template(image, template):
+#    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)

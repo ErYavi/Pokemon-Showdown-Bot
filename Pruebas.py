@@ -1,21 +1,27 @@
 import cv2
-import numpy as np
-import cv2
-from PIL import ImageGrab, ImageOps, Image
-import pyautogui as py
-import time
-import win32gui as wg
-import win32ui
-import win32api
-import win32con
-from pytesseract import *
-import pyocr
-import pyocr.builders
-import math
-from ObjetosBien import *
-import copy
-import moves
 
-im = cv2.imread("WARA.jpg")
+# Cargar imagen y plantilla
+img = cv2.imread('gengar.png')
+template = cv2.imread('templates/ghost.jpg')
 
-print(pytesseract.image_to_string(im))
+# Escalar plantilla
+# aumenta la plantilla 10 veces
+template = cv2.resize(template, (0, 0), fx=31/255, fy=11/95)
+
+# Buscar plantilla en imagen
+res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+
+# Encuentra la mejor coincidencia
+min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+
+# Dibuja un rectángulo en la ubicación de la mejor coincidencia
+if max_val > 0.7:
+    top_left = (max_loc[0], max_loc[1])
+    bottom_right = (top_left[0] + template.shape[1],
+                    top_left[1] + template.shape[0])
+    cv2.rectangle(img, top_left, bottom_right, (0, 0, 255), 2)
+
+# Muestra la imagen con el rectángulo
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
